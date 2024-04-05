@@ -15,18 +15,29 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8 
+        python-version: 3.8
 
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
 
+    
+
+    - name: Login to Heroku
+      run: heroku login -i
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+    - name: Set Heroku Config Vars
+      run: |
+        heroku config:set DATABASE_URL="${{ secrets.DATABASE_URL }}" --app iballot
+        heroku config:set SECRET_KEY="${{ secrets.SECRET_KEY }}" --app iballot
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
     - name: Deploy to Heroku
       uses: akhileshns/heroku-deploy@v3.12.12
       with:
         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: "iballot" 
+        heroku_app_name: "iballot"
         heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        config_vars: |
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          SECRET_KEY=${{ secrets.SECRET_KEY }}

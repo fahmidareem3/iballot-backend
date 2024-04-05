@@ -21,3 +21,18 @@ class UserData(BaseModel):
                 "email": "fahmida@gmail.com",
             }
         }
+
+
+class UserResponse(BaseModel):
+    fullname: str
+    email: EmailStr
+    access_token: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "fullname": "Fahmida Ara",
+                "email": "fahmida@gmail.com",
+                "access_token": "eyghojgdgjdlkjgldsjlajflkdjflsjlksjflkdsjflkdjfdkljfdklfjdkl"
+            }
+        }

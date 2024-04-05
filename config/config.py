@@ -11,8 +11,12 @@ class Settings(BaseSettings):
     DATABASE_URL: Optional[str] = None
 
     # JWT
-    secret_key: str = "secret"
+    SECRET_KEY: str = "SECRET"
     algorithm: str = "HS256"
+
+    HEROKU_API_KEY: str
+
+    HEROKU_EMAIL: str
 
     class Config:
         env_file = ".env"

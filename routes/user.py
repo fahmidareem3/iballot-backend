@@ -32,7 +32,7 @@ async def user_login(user_credentials: UserSignIn = Body(...)):
     raise HTTPException(status_code=403, detail="Incorrect email or password")
 
 
-@router.post("/signup", response_model=UserData)
+@router.post("/signup", response_model=UserResponse)
 async def user_signup(user: User = Body(...)):
     user_exists = await User.find_one(User.email == user.email)
     if user_exists:
@@ -42,7 +42,9 @@ async def user_signup(user: User = Body(...)):
 
     user.password = hash_helper.encrypt(user.password)
     new_user = await add_user(user)
+    print(new_user.id)
     token_response = sign_jwt(new_user.id)
+    print(token_response)
     access_token = token_response["access_token"]
     return UserResponse(
         fullname=new_user.fullname,

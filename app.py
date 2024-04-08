@@ -1,17 +1,26 @@
-from fastapi import FastAPI, Depends
-
+from fastapi import FastAPI
+import cloudinary
+from cloudinary.uploader import upload
+from cloudinary.api import delete_resources_by_tag, resources_by_tag
 from auth.jwt_bearer import JWTBearer
-from config.config import initiate_database
+from config.config import initiate_database, Settings
 from routes.user import router as UserRouter
-
+from routes.file_routes import router as FileRouter
 
 app = FastAPI()
 
-token_listener = JWTBearer()
+settings = Settings()
+
+
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET
+)
 
 
 @app.on_event("startup")
-async def start_database():
+async def startup_event():
     await initiate_database()
 
 
@@ -21,3 +30,5 @@ async def read_root():
 
 
 app.include_router(UserRouter, tags=["User"], prefix="/user")
+
+app.include_router(FileRouter, tags=["File Upload"], prefix="/files")

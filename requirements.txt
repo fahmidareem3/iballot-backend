@@ -34,4 +34,6 @@ toml
 tomli
 typing_extensions
 uvicorn
+cloudinary
+python-multipart
 

@@ -47,3 +47,25 @@ class UserUpdate(BaseModel):
     photoId: Optional[str] = Field(None, example="new-photo-id")
     userImage: Optional[str] = Field(None, example="http://example.com/new-image.png")
     isverified: Optional[bool] = Field(None, example=False)
+
+
+
+class UserInfoResponse(BaseModel):
+    fullname: str
+    email: EmailStr
+    institution: Optional[str] = None
+    photoId: Optional[str] = None
+    userImage: Optional[str] = None
+    isverified: bool
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "fullname": "Fahmida Ara",
+                "email": "fahmida@gmail.com",
+                "institution": "CSEDU",
+                "photoId": "some-photo-id",
+                "userImage": "http://example.com/image.png",
+                "isverified": False
+            }
+        }

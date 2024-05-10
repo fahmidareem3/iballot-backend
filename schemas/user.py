@@ -59,7 +59,7 @@ class UserInfoResponse(BaseModel):
     isverified: bool
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "fullname": "Fahmida Ara",
                 "email": "fahmida@gmail.com",

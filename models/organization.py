@@ -7,3 +7,4 @@ class Organization(Document):
     name: str
     admin_id: str
     member_ids: List[str] = []
+    

@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import Body, APIRouter, HTTPException,Depends
 from passlib.context import CryptContext
 from auth.jwt_bearer import JWTBearer
@@ -5,7 +6,7 @@ from auth.jwt_handler import sign_jwt
 from auth.jwt_handler import  decode_jwt
 from database.database import add_user,update_user,get_user_by_id
 from models.user import User
-from schemas.user import UserData, UserSignIn, UserResponse,UserUpdate,UserInfoResponse
+from schemas.user import UserData, UserSignIn, UserResponse,UserUpdate,UserInfoResponse,UserPublicData
 from beanie import PydanticObjectId
 router = APIRouter()
 
@@ -89,3 +90,17 @@ async def get_user_info(token: str = Depends(JWTBearer())):
 
     # Assuming UserInfoResponse is similar to UserResponse but without the access token
     return existing_user
+
+
+
+@router.get("/getAll", response_model=List[UserPublicData])
+async def get_all_users(token: str = Depends(JWTBearer())):
+    
+    user_data = decode_jwt(token)
+    user_id = PydanticObjectId(user_data['user_id'])
+    user = await User.get(user_id)
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    users = await User.find_all().to_list()
+    return users

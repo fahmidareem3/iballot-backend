@@ -8,7 +8,7 @@ from config.config import initiate_database, Settings
 from routes.user import router as UserRouter
 from routes.file_routes import router as FileRouter
 from routes.organization import router as OrganizationRouter
-
+from routes.election import router as ElectionRouter
 app = FastAPI()
 
 # Configuring settings
@@ -48,3 +48,4 @@ async def read_root():
 app.include_router(UserRouter, tags=["User"], prefix="/user")
 app.include_router(FileRouter, tags=["File Upload"], prefix="/files")
 app.include_router(OrganizationRouter, tags=["Organization"], prefix="/organization")
+app.include_router(ElectionRouter, tags=["Elections"], prefix="/elections")

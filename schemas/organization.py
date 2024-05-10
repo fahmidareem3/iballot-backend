@@ -1,11 +1,12 @@
 from bson import ObjectId
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional
-
+from beanie import PydanticObjectId
 class OrganizationResponse(BaseModel):
+    id:PydanticObjectId
     name: str
     admin_id: str
-    member_ids: List[str]  # Confirm these should be strings, if not adjust accordingly
+    member_ids: List[str] 
 
     
 
@@ -13,4 +14,4 @@ class OrganizationData(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True  # Adjust to from_attributes if using Pydantic v2
+        from_attributes = True  

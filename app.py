@@ -7,6 +7,7 @@ from auth.jwt_bearer import JWTBearer
 from config.config import initiate_database, Settings
 from routes.user import router as UserRouter
 from routes.file_routes import router as FileRouter
+from routes.organization import router as OrganizationRouter
 
 app = FastAPI()
 
@@ -29,21 +30,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.on_event("startup")
-async def startup_event():
+async def app_startup():
     # Database initialization
     await initiate_database()
 
+async def app_shutdown():
+    pass  # Here you can add cleanup code if necessary
+
+app.add_event_handler("startup", app_startup)
+app.add_event_handler("shutdown", app_shutdown)
 
 @app.get("/", tags=["Root"])
 async def read_root():
-    # Root endpoint message
     return {"message": "Welcome to Iballot"}
 
 # Including routers
 app.include_router(UserRouter, tags=["User"], prefix="/user")
 app.include_router(FileRouter, tags=["File Upload"], prefix="/files")
-
-
-# deployment testing
+app.include_router(OrganizationRouter, tags=["Organization"], prefix="/organization")

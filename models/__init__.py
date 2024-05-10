@@ -1,4 +1,3 @@
 from models.user import User
-
-
-__all__ = [User]
+from models.organization import Organization
+__all__ = [User,Organization]

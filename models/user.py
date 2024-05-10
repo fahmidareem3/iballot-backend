@@ -19,6 +19,7 @@ class User(Document):
                 "fullname": "Fahmida",
                 "email": "fahmida@gmail.com",
                 "password": "test",
+                "role":"user",
                 "institution": "CSEDU"
             }
         }

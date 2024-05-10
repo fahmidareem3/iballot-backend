@@ -13,3 +13,9 @@ class Election(Document):
 
     class Settings:
         name = "elections"
+        use_state_management = True 
+
+
+
+
+

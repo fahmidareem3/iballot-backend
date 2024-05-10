@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Body, status
 
 from models.election import Election
-from schemas.election import CreateElectionModel,ElectionResponse
+from schemas.election import CreateElectionModel,ElectionResponse,VoteCastingModel,CandidateVote
 
 router = APIRouter()
 
@@ -19,3 +19,20 @@ async def get_elections_by_organization(organization_id: str):
     if not elections:
         raise HTTPException(status_code=404, detail="No elections found for this organization")
     return elections
+
+
+@router.post("/vote", status_code=status.HTTP_200_OK)
+async def cast_vote(vote_data: VoteCastingModel = Body(...)):
+    
+    election = await Election.get(vote_data.election_id)
+    print(election)
+    if not election:
+        raise HTTPException(status_code=404, detail="Election not found")
+
+    for candidate in election.candidates:
+        if candidate.user_id == vote_data.candidate_user_id:
+            candidate.votes += 1
+            await election.save_changes()
+            return CandidateVote(**candidate.dict())
+
+    raise HTTPException(status_code=404, detail="Candidate not found")

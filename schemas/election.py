@@ -26,3 +26,16 @@ class ElectionResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class VoteCastingModel(BaseModel):
+    election_id: PydanticObjectId
+    candidate_user_id: str
+
+class CandidateVote(BaseModel):
+    user_id: str
+    name: str
+    votes: int
+
+    class Config:
+        orm_mode = True

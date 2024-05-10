@@ -1,3 +1,4 @@
+from typing import Optional
 from beanie import Document
 from fastapi.security import HTTPBasicCredentials
 from pydantic import BaseModel, EmailStr
@@ -9,7 +10,9 @@ class User(Document):
     password: str
     institution: str
     role: str = "user"
-
+    photoId: Optional[str] = None 
+    userImage: Optional[str] = None  
+    isverified: bool = False
     class Config:
         json_schema_extra = {
             "example": {

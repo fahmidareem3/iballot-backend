@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBasicCredentials
 from pydantic import EmailStr,Field
 
-
+from beanie import PydanticObjectId
 class UserSignIn(HTTPBasicCredentials):
     class Config:
         json_schema_extra = {
@@ -69,3 +69,17 @@ class UserInfoResponse(BaseModel):
                 "isverified": False
             }
         }
+
+
+class UserPublicData(BaseModel):
+    id: PydanticObjectId
+    fullname: str
+    email: EmailStr
+    institution: Optional[str] = None
+    role: str
+    photoId: Optional[str] = None
+    userImage: Optional[str] = None
+    isverified: bool
+
+    class Config:
+        orm_mode = True

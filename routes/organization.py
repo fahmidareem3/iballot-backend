@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Body, Depends, HTTPException
 from models.organization import Organization
 from models.user import User
@@ -25,3 +26,16 @@ async def create_organization(organization: OrganizationData = Body(...), token:
     )
     await new_organization.create()
     return new_organization
+
+
+@router.get("/getbyuser", response_model=List[OrganizationResponse])
+async def get_organizations_by_user(token: str = Depends(JWTBearer())):
+    user_data = decode_jwt(token)
+    user_id = PydanticObjectId(user_data['user_id'])
+    
+    organizations = await Organization.find(Organization.admin_id == str(user_id)).to_list()
+    
+    if not organizations:
+        raise HTTPException(status_code=404, detail="No organizations found for this user")
+    
+    return organizations

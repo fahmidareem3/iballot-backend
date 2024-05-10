@@ -1,11 +1,12 @@
-from fastapi import Body, APIRouter, HTTPException
+from fastapi import Body, APIRouter, HTTPException,Depends
 from passlib.context import CryptContext
-
+from auth.jwt_bearer import JWTBearer
 from auth.jwt_handler import sign_jwt
-from database.database import add_user
+from auth.jwt_handler import  decode_jwt
+from database.database import add_user,update_user,get_user_by_id
 from models.user import User
-from schemas.user import UserData, UserSignIn, UserResponse
-
+from schemas.user import UserData, UserSignIn, UserResponse,UserUpdate
+from beanie import PydanticObjectId
 router = APIRouter()
 
 hash_helper = CryptContext(schemes=["bcrypt"])
@@ -50,4 +51,29 @@ async def user_signup(user: User = Body(...)):
         fullname=new_user.fullname,
         email=new_user.email,
         access_token=access_token
+    )
+
+
+@router.patch("/update", response_model=UserResponse)
+async def update_user_details(
+    user_update: UserUpdate = Body(...),
+    token: str = Depends(JWTBearer())
+):
+
+    user_data = decode_jwt(token)
+    user_id = PydanticObjectId(user_data['user_id'])
+    existing_user = await User.get(user_id)
+    print(existing_user)
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = user_update.dict(exclude_none=True)
+    if 'password' in update_data:
+        update_data['password'] = hash_helper.hash(update_data['password'])
+
+    updated_user = await update_user(user_id, update_data)
+    return UserResponse(
+        fullname=updated_user.fullname,
+        email=updated_user.email,
+        access_token=token  
     )

@@ -7,6 +7,7 @@ class Election(Document):
     name: str
     organization_id: str
     organization_name: str
+    election_type:str
     start_time: datetime.datetime
     end_time: datetime.datetime
     candidates: List[Candidate] = []

@@ -4,7 +4,7 @@ from models.organization import Organization
 from models.user import User
 from auth.jwt_handler import  decode_jwt
 from auth.jwt_bearer import JWTBearer
-from schemas.organization import OrganizationResponse,OrganizationData,MembershipRequest
+from schemas.organization import OrganizationResponse,OrganizationData,MembershipRequest,ApproveMembership
 from beanie import PydanticObjectId
 router = APIRouter()
 
@@ -64,3 +64,24 @@ async def get_organization_by_id(organization_id: PydanticObjectId, token: str =
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
     return organization
+
+
+@router.post("/approve-membership", dependencies=[Depends(JWTBearer())])
+async def approve_membership(approve_request: ApproveMembership = Body(...), token: str = Depends(JWTBearer())):
+    user_data = decode_jwt(token)
+    admin_id = PydanticObjectId(user_data['user_id'])
+
+    organization = await Organization.get(approve_request.organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    
+    if organization.admin_id != str(admin_id):
+        raise HTTPException(status_code=403, detail="Only admins can approve membership requests")
+
+    if str(approve_request.user_id) not in organization.membership_requests:
+        raise HTTPException(status_code=404, detail="No such membership request found")
+
+    organization.membership_requests.remove(str(approve_request.user_id))
+    organization.member_ids.append(str(approve_request.user_id))
+    await organization.save()
+    return {"detail": "Membership request approved successfully"}

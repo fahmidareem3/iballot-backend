@@ -5,6 +5,7 @@ from models.user import User
 from auth.jwt_handler import  decode_jwt
 from auth.jwt_bearer import JWTBearer
 from schemas.organization import OrganizationResponse,OrganizationData,MembershipRequest,ApproveMembership
+from schemas.user import UserInfoResponse
 from beanie import PydanticObjectId
 router = APIRouter()
 
@@ -90,3 +91,30 @@ async def approve_membership(approve_request: ApproveMembership = Body(...), tok
 async def get_all_organizations(token: str = Depends(JWTBearer())):
     organizations = await Organization.find_all().to_list()
     return organizations
+
+
+@router.get("/{organization_id}/members", response_model=List[UserInfoResponse], dependencies=[Depends(JWTBearer())])
+async def get_organization_members(organization_id: PydanticObjectId, token: str = Depends(JWTBearer())):
+    organization = await Organization.get(organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    
+    members = []
+    for member_id in organization.member_ids:
+        user = await User.get(PydanticObjectId(member_id))
+        if user:
+            members.append(user)
+    return members
+
+@router.get("/{organization_id}/membership-requests", response_model=List[UserInfoResponse], dependencies=[Depends(JWTBearer())])
+async def get_membership_requests(organization_id: PydanticObjectId, token: str = Depends(JWTBearer())):
+    organization = await Organization.get(organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    
+    requests = []
+    for request_id in organization.membership_requests:
+        user = await User.get(PydanticObjectId(request_id))
+        if user:
+            requests.append(user)
+    return requests

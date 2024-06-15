@@ -85,3 +85,8 @@ async def approve_membership(approve_request: ApproveMembership = Body(...), tok
     organization.member_ids.append(str(approve_request.user_id))
     await organization.save()
     return {"detail": "Membership request approved successfully"}
+
+@router.get("/", response_model=List[OrganizationResponse], dependencies=[Depends(JWTBearer())])
+async def get_all_organizations(token: str = Depends(JWTBearer())):
+    organizations = await Organization.find_all().to_list()
+    return organizations

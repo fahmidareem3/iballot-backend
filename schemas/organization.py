@@ -7,6 +7,7 @@ class OrganizationResponse(BaseModel):
     name: str
     admin_id: str
     member_ids: List[str] 
+    membership_requests: List[str]
 
     
 
@@ -15,3 +16,11 @@ class OrganizationData(BaseModel):
 
     class Config:
         from_attributes = True  
+
+
+class MembershipRequest(BaseModel):
+    organization_id: PydanticObjectId
+
+class ApproveMembership(BaseModel):
+    user_id: PydanticObjectId
+    organization_id: PydanticObjectId

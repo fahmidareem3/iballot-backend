@@ -54,6 +54,7 @@ class UserInfoResponse(BaseModel):
     fullname: str
     email: EmailStr
     institution: Optional[str] = None
+    role:str
     photoId: Optional[str] = None
     userImage: Optional[str] = None
     isverified: bool

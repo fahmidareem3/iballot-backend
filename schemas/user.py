@@ -51,6 +51,7 @@ class UserUpdate(BaseModel):
 
 
 class UserInfoResponse(BaseModel):
+    id: PydanticObjectId
     fullname: str
     email: EmailStr
     institution: Optional[str] = None
@@ -62,6 +63,7 @@ class UserInfoResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "id": "60d0fe4f5311236168a109ca",
                 "fullname": "Fahmida Ara",
                 "email": "fahmida@gmail.com",
                 "institution": "CSEDU",

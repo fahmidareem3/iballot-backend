@@ -1,10 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,EmailStr
 from typing import List, Optional
 from datetime import datetime
 from beanie import PydanticObjectId
 class Candidate(BaseModel):
     user_id: str
-    name: str
     votes: int = 0
     score: Optional[int] = 0   
 
@@ -37,7 +36,6 @@ class VoteCastingModel(BaseModel):
 
 class CandidateVote(BaseModel):
     user_id: str
-    name: str
     votes: int
 
     class Config:
@@ -47,3 +45,13 @@ class ScoreUpdateModel(BaseModel):
     election_id: PydanticObjectId
     candidate_user_id: str
     additional_score: int = Field(..., example=5, description="The score to add to the candidate's total.")
+
+
+class CandidateInfoResponse(BaseModel):
+    id: PydanticObjectId
+    fullname: str
+    email: EmailStr
+    photoId: Optional[str]
+    userImage: Optional[str]
+    votes: int
+    score: Optional[int]

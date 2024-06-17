@@ -1,9 +1,11 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Body, status
+from fastapi import APIRouter, HTTPException, Depends,Body, status
 from beanie import PydanticObjectId
 from models.election import Election
 from schemas.election import CreateElectionModel,ElectionResponse,VoteCastingModel,CandidateVote,ScoreUpdateModel,CandidateInfoResponse
 from models.user import User
+from auth.jwt_handler import  decode_jwt
+from auth.jwt_bearer import JWTBearer
 router = APIRouter()
 
 @router.post("/create", response_model=Election, status_code=status.HTTP_201_CREATED)
@@ -77,3 +79,11 @@ async def get_candidates(election_id: PydanticObjectId):
                 )
             )
     return candidates_info
+
+
+@router.get("/{election_id}", response_model=ElectionResponse, dependencies=[Depends(JWTBearer())])
+async def get_election_by_id(election_id: PydanticObjectId, token: str = Depends(JWTBearer())):
+    election = await Election.get(election_id)
+    if not election:
+        raise HTTPException(status_code=404, detail="Election not found")
+    return election

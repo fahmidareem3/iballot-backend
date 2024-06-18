@@ -55,3 +55,9 @@ class CandidateInfoResponse(BaseModel):
     userImage: Optional[str]
     votes: int
     score: Optional[int]
+
+class SingleCandidateResponse(BaseModel):
+    candidate: CandidateInfoResponse
+
+class MultipleCandidatesResponse(BaseModel):
+    candidates: List[CandidateInfoResponse]

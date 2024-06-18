@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from fastapi import APIRouter, Body, Depends, HTTPException
 from models.organization import Organization
@@ -8,6 +9,20 @@ from schemas.organization import OrganizationResponse,OrganizationData,Membershi
 from schemas.user import UserInfoResponse
 from beanie import PydanticObjectId
 router = APIRouter()
+
+
+@router.get("/getbymember", response_model=List[OrganizationResponse], dependencies=[Depends(JWTBearer())])
+async def get_organizations_by_member(token: str = Depends(JWTBearer())):
+    user_data = decode_jwt(token)
+    user_id = str(PydanticObjectId(user_data['user_id']))
+    logging.info(f"User ID: {user_id}")
+
+    organizations = await Organization.find({"member_ids": user_id}).to_list()
+
+    if not organizations:
+        raise HTTPException(status_code=404, detail="No organizations found for this user")
+    
+    return organizations
 
 @router.post("/create-organization", response_model=OrganizationResponse, dependencies=[Depends(JWTBearer())])
 async def create_organization(organization: OrganizationData = Body(...), token: str = Depends(JWTBearer())):
@@ -33,7 +48,6 @@ async def create_organization(organization: OrganizationData = Body(...), token:
 async def get_organizations_by_user(token: str = Depends(JWTBearer())):
     user_data = decode_jwt(token)
     user_id = PydanticObjectId(user_data['user_id'])
-    
     organizations = await Organization.find(Organization.admin_id == str(user_id)).to_list()
     
     if not organizations:
@@ -118,3 +132,7 @@ async def get_membership_requests(organization_id: PydanticObjectId, token: str 
         if user:
             requests.append(user)
     return requests
+
+
+
+    

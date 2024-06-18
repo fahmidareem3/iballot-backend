@@ -88,19 +88,19 @@ async def get_election_by_id(election_id: PydanticObjectId, token: str = Depends
         raise HTTPException(status_code=404, detail="Election not found")
     return election
 
-@router.get("/{election_id}/results", response_model=Union[SingleCandidateResponse, MultipleCandidatesResponse], status_code=status.HTTP_200_OK)
+@router.get("/{election_id}/results", response_model=MultipleCandidatesResponse, status_code=status.HTTP_200_OK)
 async def election_results(election_id: PydanticObjectId, token: str = Depends(JWTBearer())):
     election = await Election.get(election_id)
     if not election:
         raise HTTPException(status_code=404, detail="Election not found")
-    
+
     if election.election_type == "Single":
         # Find the candidate with the highest votes
         winner = max(election.candidates, key=lambda candidate: candidate.votes)
         user = await User.get(PydanticObjectId(winner.user_id))
         if user:
-            return SingleCandidateResponse(
-                candidate=CandidateInfoResponse(
+            return MultipleCandidatesResponse(
+                candidates=[CandidateInfoResponse(
                     id=user.id,
                     fullname=user.fullname,
                     email=user.email,
@@ -108,9 +108,9 @@ async def election_results(election_id: PydanticObjectId, token: str = Depends(J
                     userImage=user.userImage,
                     votes=winner.votes,
                     score=winner.score
-                )
+                )]
             )
-    
+
     elif election.election_type == "Multi":
         # Sort candidates based on votes
         sorted_candidates = sorted(election.candidates, key=lambda candidate: candidate.votes, reverse=True)
@@ -130,7 +130,7 @@ async def election_results(election_id: PydanticObjectId, token: str = Depends(J
                     )
                 )
         return MultipleCandidatesResponse(candidates=winners_info)
-    
+
     elif election.election_type == "Score":
         # Sort candidates based on score
         sorted_candidates = sorted(election.candidates, key=lambda candidate: candidate.score, reverse=True)
@@ -150,5 +150,5 @@ async def election_results(election_id: PydanticObjectId, token: str = Depends(J
                     )
                 )
         return MultipleCandidatesResponse(candidates=winners_info)
-    
+
     raise HTTPException(status_code=400, detail="Invalid election type")
